@@ -35,6 +35,7 @@ import org.centralplains.daas.components.MapApi;
 import org.centralplains.daas.dao.ProductMapper;
 import org.centralplains.daas.dao.ProductRepository;
 import org.centralplains.daas.dao.VarietyRepository;
+import org.centralplains.daas.service.CacheService;
 import org.centralplains.daas.service.ProductService;
 import org.centralplains.daas.util.HttpUtil;
 import org.jsoup.Connection;
@@ -74,6 +75,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private VarietyRepository varietyRepository;
+
+    @Autowired
+    private CacheService cacheService;
 
     @Override
     public String reqPriceTrend(String mark) {
@@ -119,8 +123,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     protected MapPriceResp regoinPrice(String varietyName, Date date) {
+        boolean mapPriceExist = false;
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(date);
+        String key = varietyName + dateStr;
+        Object o = cacheService.get("mapPrice", key);
+        if (o != null) {
+            return (MapPriceResp) o;
+        } else {
+            MapPriceResp var1 = findMapProce(varietyName, dateStr);
+            cacheService.put("mapPrice", key, var1);
+            return var1;
+        }
+    }
+
+    protected MapPriceResp findMapProce(String varietyName, String currentDate) {
         //获取地区和价格
-        List<Product> productList = productMapper.findSellerPrice(varietyName, new SimpleDateFormat("yyyy-MM-dd").format(date));
+        List<Product> productList = productMapper.findSellerPrice(varietyName, currentDate);
         //处理data
         List<Map<String, Object>> data = new ArrayList<>(50);
         Map<String, Double[]> geoCoordMap = new HashMap<>(50);

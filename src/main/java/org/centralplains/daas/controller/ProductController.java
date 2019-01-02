@@ -32,6 +32,7 @@ import org.centralplains.daas.beans.res.MapPriceResp;
 import org.centralplains.daas.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -46,6 +47,9 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping(value = "/prd")
 public class ProductController {
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Autowired
     private ProductService productService;
@@ -74,5 +78,12 @@ public class ProductController {
     @RequestMapping(value = "/sync")
     public Object sync(@RequestBody(required = false) @Valid SyncReq req) {
         return productService.sync(req);
+    }
+
+    @RequestMapping(value = "/cache/test")
+    public Object cache() {
+        redisTemplate.opsForHash().put("daas", "name", "李飞飞");
+
+        return "操作结束";
     }
 }

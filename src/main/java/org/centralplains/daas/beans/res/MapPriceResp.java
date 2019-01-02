@@ -24,6 +24,7 @@
  */
 package org.centralplains.daas.beans.res;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -34,9 +35,11 @@ import java.util.Map;
  * @Date 2018/12/14 15:20
  * @Version 1.0
  */
-public class MapPriceResp {
+public class MapPriceResp implements Serializable {
+
+    private static final long serialVersionUID = -8372185382303694941L;
     private List<Map<String, Object>> data;
-    private Map<String,Double[]> geoCoordMap;
+    private Map<String, Double[]> geoCoordMap;
 
     public MapPriceResp(List<Map<String, Object>> data, Map<String, Double[]> geoCoordMap) {
         this.data = data;

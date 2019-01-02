@@ -8,6 +8,16 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  redis:
+    host: 114.116.24.215
+    port: 6379
+    jedis:
+      pool:
+        max-idle: 100
+        min-idle: 1
+        max-active: 1000
+        max-wait: -1
+    timeout: 3000
 mybatis:
   type-aliases-package: org.centralplains.daas.beans
   mapper-locations: classpath:mapper/*.xml
