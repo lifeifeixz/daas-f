@@ -41,5 +41,5 @@ public interface CacheService {
      */
     void put(String h, String key, Object val);
 
-    Object get(String h, String key);
+    Object get(String h, Object key);
 }

@@ -48,7 +48,7 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @Override
-    public Object get(String h, String key) {
+    public Object get(String h, Object key) {
         return redisTemplate.opsForHash().get(h,key);
     }
 }

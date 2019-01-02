@@ -25,10 +25,13 @@
 package org.centralplains.daas.controller;
 
 import org.centralplains.daas.beans.Product;
+import org.centralplains.daas.beans.Variety;
 import org.centralplains.daas.beans.req.ProductPageReq;
 import org.centralplains.daas.beans.req.RegoinPriceReq;
 import org.centralplains.daas.beans.req.SyncReq;
 import org.centralplains.daas.beans.res.MapPriceResp;
+import org.centralplains.daas.dao.VarietyRepository;
+import org.centralplains.daas.service.CacheService;
 import org.centralplains.daas.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +39,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author flysLi
@@ -53,6 +57,12 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private VarietyRepository varietyRepository;
+
+    @Autowired
+    private CacheService cacheService;
 
     @RequestMapping(value = "/page", method = RequestMethod.POST)
     public Page<Product> pages(@RequestBody ProductPageReq req) {
@@ -83,7 +93,16 @@ public class ProductController {
     @RequestMapping(value = "/cache/test")
     public Object cache() {
         redisTemplate.opsForHash().put("daas", "name", "李飞飞");
+        redisTemplate.opsForHash().put("variety", 1, varietyRepository.findByParentId(1));
+        redisTemplate.opsForHash().put("variety", 2, varietyRepository.findByParentId(2));
+        redisTemplate.opsForHash().put("variety", 3, varietyRepository.findByParentId(3));
+        redisTemplate.opsForHash().put("variety", 4, varietyRepository.findByParentId(4));
+        redisTemplate.opsForHash().put("variety", 5, varietyRepository.findByParentId(5));
+        return "缓存完成";
+    }
 
-        return "操作结束";
+    @RequestMapping(value = "/variety/large")
+    public List<Variety> large(@RequestParam int parentId) {
+        return (List<Variety>) cacheService.get("variety", parentId);
     }
 }
