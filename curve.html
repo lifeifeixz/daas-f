@@ -1,0 +1,187 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" lang="zh-CN">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+		<title>全国农产品商务信息公共服务平台--价格分析</title>
+		<script src="http://nc.mofcom.gov.cn/channel/jghq2017/js/echarts.min.js"></script>
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<style type="text/css">
+			body {
+				font-family: 'Microsoft YaHei', '\5FAE\8F6F\96C5\9ED1';
+				color: #000;
+				font-size: 14px;
+			}
+			
+			table {
+				border-collapse: collapse;
+				border-spacing: 0;
+			}
+			
+			.table-box {
+				height: 835px;
+				margin: 0 auto;
+				width: 1000px;
+			}
+			
+			.chart-box {
+				height: 835px;
+				width: 900px;
+				float: left;
+			}
+			
+			.tit-01 {
+				font: 24px/42px 'Microsoft YaHei', '\5FAE\8F6F\96C5\9ED1';
+				color: #000;
+			}
+			
+			.tit-06 {
+				font-size: 15px;
+			}
+			
+			.tit-info {
+				border: 0;
+				margin-left: 200px;
+				width: 700px;
+			}
+			
+			.tit-info tr {
+				line-height: 30px;
+			}
+			
+			.mt20 {
+				margin-top: 20px;
+			}
+			
+			.mt30 {
+				margin-top: 30px;
+			}
+			
+			.tac {
+				text-align: center;
+			}
+			
+			.bold {
+				font-weight: bold;
+			}
+		</style>
+	</head>
+
+	<body bgcolor="#ffffff">
+		<div class="table-box">
+			<div class="chart-box">
+				<div class="tit-01 tac mt30">全国农产品商务信息公共服务平台价格分析</div>
+				<div class="tit-06 tac"><span id="zsTitle">北京市丰台区新发地农产品批发市场2016年和2017年土豆价格走势</span></div>
+				<table class="tit-info mt20">
+					<tr>
+						<td width="40%"><span class="bold">产品名称：</span><span id="craft_name">土豆</span></td>
+						<td width="60%"><span class="bold">批发市场：</span><span id="eud_name">北京市丰台区新发地农产品批发市场</span></td>
+					</tr>
+					<tr>
+						<td><span class="bold">时 &nbsp;&nbsp;&nbsp;&nbsp; 间：</span><span id="year">2016/2017</span></td>
+						<td><span class="bold">价格单位：</span><span id="c_unit">元/公斤</span></td>
+					</tr>
+				</table>
+				<div id="chart1" style="height:600px;width:900px;margin-top:30px"></div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script src="test.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	var year1 = '2017';
+	var year2 = '2018';
+	var mark1 = '45078';
+	var craft_index = '13214';
+
+	//IE8以上版本进行加载
+	var ua = navigator.userAgent.toLowerCase();
+	var isIE = ua.indexOf("msie") > -1;
+	var safariVersion = "";
+	if(isIE) {
+		safariVersion = ua.match(/msie ([\d.]+)/)[1];
+	}
+	//如果是IE8以上版本
+	var myChart = echarts.init(document.getElementById('chart1'));
+	option = {
+		title: {
+			text: ''
+		},
+		tooltip: {
+			trigger: 'item',
+			formatter: '{a} <br/>{b} : {c}'
+		},
+		legend: {
+			data: [year1, year2]
+		},
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '3%',
+			containLabel: true
+		},
+		xAxis: {
+			type: 'category',
+			splitLine: {
+				show: false
+			},
+			data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+		},
+		yAxis: {
+			type: 'log',
+			axisLabel: {
+				formatter: '￥{value}'
+			}
+		},
+		series: [{
+				name: year1,
+				type: 'line',
+				label: {
+					normal: {
+						show: true
+					}
+				},
+				data: [],
+			},
+			{
+				name: year2,
+				type: 'line',
+				label: {
+					normal: {
+						show: true
+					}
+				},
+				data: [],
+			}
+		]
+	};
+	myChart.showLoading(); //数据加载完之前先显示一段简单的loading动画
+
+	var year1Datas = []; //价格数组
+	var year2Datas = []; //价格数组
+	console.log(result)
+	myChart.hideLoading(); //停止动画 
+	//console.log(JSON.stringify(result));
+	$("#craft_name").text(result.craft_name);
+	$("#eud_name").text(result.eud_name);
+	$("#c_unit").text(result.c_unit);
+	$("#year").text(year1 + "/" + year2);
+	$("#zsTitle").text(result.eud_name + year1 + "和" + year2 + "年" + result.craft_name + "价格走势");
+	myChart.setOption({ //加载数据图表
+		title: {
+			text: '价格单位(' + result.c_unit + ')'
+		},
+		series: [{
+			// 根据名字对应到相应的系列
+			name: year1,
+			data: result.datas1,
+		}, {
+			// 根据名字对应到相应的系列
+			name: year2,
+			data: result.datas2,
+		}]
+	});
+	myChart.setOption(option);
+	//		$("#chart1").append('<img src="/channel/jghq2017/img/bg/echarts_bg.jpg">');
+</script>

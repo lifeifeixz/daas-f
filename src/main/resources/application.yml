@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://180.76.115.114:3306/daas?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+mybatis:
+  type-aliases-package: org.centralplains.daas.beans
+  mapper-locations: classpath:mapper/*.xml
+logging:
+  level:
+    org.centralplains.daas.dao: debug
