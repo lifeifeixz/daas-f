@@ -26,6 +26,7 @@ package org.centralplains.daas.service.impl;
 
 import org.assertj.core.util.DateUtil;
 import org.centralplains.daas.beans.Product;
+import org.centralplains.daas.beans.Variety;
 import org.centralplains.daas.beans.req.ProductPageReq;
 import org.centralplains.daas.beans.Location;
 import org.centralplains.daas.beans.req.RegoinPriceReq;
@@ -139,29 +140,47 @@ public class ProductServiceImpl implements ProductService {
     protected MapPriceResp findMapProce(String varietyName, String currentDate) {
         //获取地区和价格
         List<Product> productList = productMapper.findSellerPrice(varietyName, currentDate);
-        //处理data
-        List<Map<String, Object>> data = new ArrayList<>(50);
-        Map<String, Double[]> geoCoordMap = new HashMap<>(50);
-        for (Product product : productList) {
-            Map<String, Object> item = new HashMap<>(1);
-            item.put("name", product.getSeller());
-            item.put("value", product.getPrice() * 10);
-            Double[] position = new Double[2];
-            Location loc = mapApi.geoCoder(product.getSeller());
-            if (loc == null) {
-                continue;
-            }
-            position[0] = loc.getLng();
-            position[1] = loc.getLat();
-            data.add(item);
-            geoCoordMap.put(product.getSeller(), position);
+        if (productList != null && productList.size() > 0) {
+            return convertMapPrice(productList);
+        } else {
+            Variety variety = varietyRepository.findByName(varietyName);
+            syncRemoteData(currentDate, currentDate, variety.getCode());
+            productList = productMapper.findSellerPrice(varietyName, currentDate);
+            return convertMapPrice(productList);
         }
-        return new MapPriceResp(data, geoCoordMap);
+    }
+
+    protected MapPriceResp convertMapPrice(List<Product> products) {
+        if (products != null && products.size() > 0) {
+            //处理data
+            List<Map<String, Object>> data = new ArrayList<>(50);
+            Map<String, Double[]> geoCoordMap = new HashMap<>(50);
+            for (Product product : products) {
+                Map<String, Object> item = new HashMap<>(1);
+                item.put("name", product.getSeller());
+                item.put("value", product.getPrice() * 10);
+                Double[] position = new Double[2];
+                Location loc = mapApi.geoCoder(product.getSeller());
+                if (loc == null) {
+                    continue;
+                }
+                position[0] = loc.getLng();
+                position[1] = loc.getLat();
+                data.add(item);
+                geoCoordMap.put(product.getSeller(), position);
+            }
+            return new MapPriceResp(data, geoCoordMap);
+        }
+        return null;
     }
 
     @Override
     public MapPriceResp varietyRegoinPrice(RegoinPriceReq req) {
         return regoinPrice(req.getVarietyName(), req.getDate());
+    }
+
+    protected void syncRemoteData(String dateForm, String dateTo, String varietyCode) {
+        sync(new SyncReq(dateForm, dateTo, varietyCode));
     }
 
     @Override

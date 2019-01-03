@@ -16,4 +16,6 @@ public interface VarietyRepository extends JpaRepository<Variety, Integer> {
     Variety findByCode(String code);
 
     List<Variety> findByParentId(Integer parentId);
+
+    Variety findByName(String name);
 }

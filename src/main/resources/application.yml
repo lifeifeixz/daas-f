@@ -4,6 +4,10 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 100
+      minimum-idle: 1
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,7 +21,7 @@ spring:
         min-idle: 1
         max-active: 1000
         max-wait: -1
-    timeout: 3000
+    timeout: 30000
 mybatis:
   type-aliases-package: org.centralplains.daas.beans
   mapper-locations: classpath:mapper/*.xml

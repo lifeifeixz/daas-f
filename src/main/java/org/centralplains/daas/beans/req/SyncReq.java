@@ -59,4 +59,13 @@ public class SyncReq {
     public void setVarietyCode(String varietyCode) {
         this.varietyCode = varietyCode;
     }
+
+    public SyncReq(String dateForm, String dateTo, String varietyCode) {
+        this.dateForm = dateForm;
+        this.dateTo = dateTo;
+        this.varietyCode = varietyCode;
+    }
+
+    public SyncReq() {
+    }
 }
