@@ -168,6 +168,7 @@ public class ProductServiceImpl implements ProductService {
                 Map<String, Object> item = new HashMap<>(1);
                 item.put("name", product.getSeller());
                 item.put("value", product.getPrice() * 10);
+                item.put("make",product.getPriceTrend());
                 Double[] position = new Double[2];
                 Location loc = locationService.getByKeywords(product.getSeller());
                 if (loc == null) {
@@ -204,6 +205,7 @@ public class ProductServiceImpl implements ProductService {
         String abstractUrl = "http://nc.mofcom.gov.cn/channel/jghq2017/price_list.shtml?" +
                 "par_craft_index=13075&craft_index=" + varietyCode + "&par_p_index=&p_index=" +
                 "&startTime=" + req.getDateForm() + "&endTime=" + req.getDateTo() + "&page=";
+        products = new ArrayList<>(100);
         for (int j = 1; j <= var1; j++) {
             String url = abstractUrl + j;
             Connection connection = Jsoup.connect(url);
@@ -222,28 +224,26 @@ public class ProductServiceImpl implements ProductService {
             }
             Element table = document.getElementsByClass("table-01").first();
             Elements trs = table.children().first().children();
-            if (trs != null && trs.size() > 0) {
-                products = new ArrayList<>(100);
-                for (int i = 1; i < trs.size(); i++) {
-                    Element tr = trs.get(i);
-                    Elements tds = tr.children();
-                    String date = tds.get(0).text();
-                    String name = tds.get(1).text();
-                    Double price = Double.valueOf(tds.get(2).getElementsByClass("c-orange").eq(0).text());
-                    String seller = tds.get(3).text();
-                    String uri = tds.get(4).getElementsByTag("a").eq(0).attr("href");
-                    //解析mark1
-                    String priceTrend = uri.substring(uri.indexOf("mark1=") + 6, uri.indexOf("&"));
-                    Product product = new Product();
-                    product.setDate(DateUtil.parse(date));
-                    product.setName(name);
-                    product.setPrice(price);
-                    //由于信息同步过程较慢，暂时放弃价格年走势的提取，只记录走势key。
-                    product.setPriceTrend(priceTrend);
-                    product.setSeller(seller);
-                    //save(product);//由于直接存储数据库效率慢，暂时尝试缓存
-                    products.add(product);
-                }
+
+            for (int i = 1; i < trs.size(); i++) {
+                Element tr = trs.get(i);
+                Elements tds = tr.children();
+                String date = tds.get(0).text();
+                String name = tds.get(1).text();
+                Double price = Double.valueOf(tds.get(2).getElementsByClass("c-orange").eq(0).text());
+                String seller = tds.get(3).text();
+                String uri = tds.get(4).getElementsByTag("a").eq(0).attr("href");
+                //解析mark1
+                String priceTrend = uri.substring(uri.indexOf("mark1=") + 6, uri.indexOf("&"));
+                Product product = new Product();
+                product.setDate(DateUtil.parse(date));
+                product.setName(name);
+                product.setPrice(price);
+                //由于信息同步过程较慢，暂时放弃价格年走势的提取，只记录走势key。
+                product.setPriceTrend(priceTrend);
+                product.setSeller(seller);
+                //save(product);//由于直接存储数据库效率慢，暂时尝试缓存
+                products.add(product);
             }
         }
         long end = System.currentTimeMillis();

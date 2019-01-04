@@ -24,6 +24,8 @@
  */
 package org.centralplains.daas.components;
 
+import org.jsoup.nodes.Document;
+
 /**
  * @author flysLi
  * @ClassName Analysis
@@ -33,4 +35,5 @@ package org.centralplains.daas.components;
  */
 public interface Analysis {
 
+    <T> T resolve(Document document, T t);
 }

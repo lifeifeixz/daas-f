@@ -94,14 +94,22 @@ public class ProductController {
         return productService.sync(req);
     }
 
+    @RequestMapping(value = "/getTrendByMark")
+    public Object getTrendByCode(@RequestParam String make){
+
+        return productService.reqPriceTrend(make);
+    }
+
     @RequestMapping(value = "/cache/test")
     public Object cache() {
         /*Add location data from Mysql to the cache*/
         List<Location> locations = locationRepository.findAll();
         int i = 0;
         for (Location location : locations) {
-            cacheService.put(LocationCacheImpl.LOCATION_KEY, location.getKeywords(), location);
-            System.out.println(i++);
+           if(location.getLat()!=null&&location.getLng()!=null){
+               cacheService.put(LocationCacheImpl.LOCATION_KEY, location.getKeywords(), location);
+               System.out.println(i++);
+           }
         }
         return "缓存完成";
     }

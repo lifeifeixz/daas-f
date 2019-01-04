@@ -69,6 +69,12 @@ public class TencentMapImpl implements MapApi {
         } else {
             System.out.println("[" + address + "]查询不到数据;具体原因可能: " + jsonObject.getString("message"));
         }
+        //程序默认阻塞一秒
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
