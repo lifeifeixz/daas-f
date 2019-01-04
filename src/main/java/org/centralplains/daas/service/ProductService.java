@@ -7,6 +7,8 @@ import org.centralplains.daas.beans.req.SyncReq;
 import org.centralplains.daas.beans.res.MapPriceResp;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 /**
  * @author flysLi
  * @date 2018/12/13
@@ -50,5 +52,22 @@ public interface ProductService {
      * @param req
      * @return
      */
-    Object sync(SyncReq req);
+    List<Product> sync(SyncReq req);
+
+    /**
+     * 持久化
+     *
+     * @param product
+     * @return
+     */
+    Product save(Product product);
+
+    /**
+     * 通过日期和名称获取产品
+     *
+     * @param name
+     * @param date
+     * @return
+     */
+    Product getProduct(String name, String date);
 }

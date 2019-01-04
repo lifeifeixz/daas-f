@@ -24,12 +24,16 @@
  */
 package org.centralplains.daas.controller;
 
+import org.centralplains.daas.beans.Location;
 import org.centralplains.daas.beans.Product;
 import org.centralplains.daas.beans.Variety;
 import org.centralplains.daas.beans.req.ProductPageReq;
 import org.centralplains.daas.beans.req.RegoinPriceReq;
 import org.centralplains.daas.beans.req.SyncReq;
 import org.centralplains.daas.beans.res.MapPriceResp;
+import org.centralplains.daas.components.LocationService;
+import org.centralplains.daas.components.impl.LocationCacheImpl;
+import org.centralplains.daas.dao.LocationRepository;
 import org.centralplains.daas.dao.VarietyRepository;
 import org.centralplains.daas.service.CacheService;
 import org.centralplains.daas.service.ProductService;
@@ -59,7 +63,7 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private VarietyRepository varietyRepository;
+    private LocationRepository locationRepository;
 
     @Autowired
     private CacheService cacheService;
@@ -92,12 +96,13 @@ public class ProductController {
 
     @RequestMapping(value = "/cache/test")
     public Object cache() {
-        redisTemplate.opsForHash().put("daas", "name", "李飞飞");
-        redisTemplate.opsForHash().put("variety", 1, varietyRepository.findByParentId(1));
-        redisTemplate.opsForHash().put("variety", 2, varietyRepository.findByParentId(2));
-        redisTemplate.opsForHash().put("variety", 3, varietyRepository.findByParentId(3));
-        redisTemplate.opsForHash().put("variety", 4, varietyRepository.findByParentId(4));
-        redisTemplate.opsForHash().put("variety", 5, varietyRepository.findByParentId(5));
+        /*Add location data from Mysql to the cache*/
+        List<Location> locations = locationRepository.findAll();
+        int i = 0;
+        for (Location location : locations) {
+            cacheService.put(LocationCacheImpl.LOCATION_KEY, location.getKeywords(), location);
+            System.out.println(i++);
+        }
         return "缓存完成";
     }
 

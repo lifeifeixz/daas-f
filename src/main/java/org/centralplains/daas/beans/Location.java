@@ -25,6 +25,7 @@
 package org.centralplains.daas.beans;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @author flysLi
@@ -35,8 +36,9 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "location")
-public class Location {
+public class Location implements Serializable{
 
+    private static final long serialVersionUID = -5356581401855511119L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;

@@ -32,6 +32,7 @@ import org.centralplains.daas.beans.Location;
 import org.centralplains.daas.beans.req.RegoinPriceReq;
 import org.centralplains.daas.beans.req.SyncReq;
 import org.centralplains.daas.beans.res.MapPriceResp;
+import org.centralplains.daas.components.LocationService;
 import org.centralplains.daas.components.MapApi;
 import org.centralplains.daas.dao.ProductMapper;
 import org.centralplains.daas.dao.ProductRepository;
@@ -62,6 +63,7 @@ import java.util.*;
 @SuppressWarnings("all")
 @Service
 public class ProductServiceImpl implements ProductService {
+    public static final String PRODUCT_KEY = "product";
     @Autowired
     private ProductRepository productRepository;
 
@@ -79,6 +81,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private CacheService cacheService;
+
+    @Autowired
+    private LocationService locationService;
 
     @Override
     public String reqPriceTrend(String mark) {
@@ -128,6 +133,7 @@ public class ProductServiceImpl implements ProductService {
         String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(date);
         String key = varietyName + dateStr;
         Object o = cacheService.get("mapPrice", key);
+        /*Data is fetched from the cache, if it exists*/
         if (o != null) {
             return (MapPriceResp) o;
         } else {
@@ -139,13 +145,16 @@ public class ProductServiceImpl implements ProductService {
 
     protected MapPriceResp findMapProce(String varietyName, String currentDate) {
         //获取地区和价格
-        List<Product> productList = productMapper.findSellerPrice(varietyName, currentDate);
-        if (productList != null && productList.size() > 0) {
+        String key = varietyName + "_" + currentDate;
+        List<Product> productList = (List<Product>) cacheService.get(PRODUCT_KEY, key);
+        if (productList != null) {
             return convertMapPrice(productList);
         } else {
             Variety variety = varietyRepository.findByName(varietyName);
-            syncRemoteData(currentDate, currentDate, variety.getCode());
-            productList = productMapper.findSellerPrice(varietyName, currentDate);
+            productList = syncRemoteData(currentDate, currentDate, variety.getCode());
+            /*Do not temporarily keep the database for efficiency*/
+//            productList = productMapper.findSellerPrice(varietyName, currentDate);
+            cacheService.put(PRODUCT_KEY, key, productList);
             return convertMapPrice(productList);
         }
     }
@@ -160,7 +169,7 @@ public class ProductServiceImpl implements ProductService {
                 item.put("name", product.getSeller());
                 item.put("value", product.getPrice() * 10);
                 Double[] position = new Double[2];
-                Location loc = mapApi.geoCoder(product.getSeller());
+                Location loc = locationService.getByKeywords(product.getSeller());
                 if (loc == null) {
                     continue;
                 }
@@ -179,13 +188,15 @@ public class ProductServiceImpl implements ProductService {
         return regoinPrice(req.getVarietyName(), req.getDate());
     }
 
-    protected void syncRemoteData(String dateForm, String dateTo, String varietyCode) {
-        sync(new SyncReq(dateForm, dateTo, varietyCode));
+    protected List<Product> syncRemoteData(String dateForm, String dateTo, String varietyCode) {
+        return sync(new SyncReq(dateForm, dateTo, varietyCode));
     }
 
     @Override
-    public Object sync(SyncReq req) {
+    public List<Product> sync(SyncReq req) {
+        long start = System.currentTimeMillis();
         int var1 = 20;
+        List<Product> products = null;
         String varietyCode = req.getVarietyCode();
         if (varietyCode == null) {
             varietyCode = "13214";//默认查询山药价格
@@ -211,26 +222,43 @@ public class ProductServiceImpl implements ProductService {
             }
             Element table = document.getElementsByClass("table-01").first();
             Elements trs = table.children().first().children();
-            for (int i = 1; i < trs.size(); i++) {
-                Element tr = trs.get(i);
-                Elements tds = tr.children();
-                String date = tds.get(0).text();
-                String name = tds.get(1).text();
-                Double price = Double.valueOf(tds.get(2).getElementsByClass("c-orange").eq(0).text());
-                String seller = tds.get(3).text();
-                String uri = tds.get(4).getElementsByTag("a").eq(0).attr("href");
-                //解析mark1
-                String priceTrend = uri.substring(uri.indexOf("mark1=") + 6, uri.indexOf("&"));
-                Product product = new Product();
-                product.setDate(DateUtil.parse(date));
-                product.setName(name);
-                product.setPrice(price);
-                product.setPriceTrend(productService.reqPriceTrend(priceTrend));
-                product.setSeller(seller);
-                product.setCreateDate(new Date());
-                productRepository.save(product);
+            if (trs != null && trs.size() > 0) {
+                products = new ArrayList<>(100);
+                for (int i = 1; i < trs.size(); i++) {
+                    Element tr = trs.get(i);
+                    Elements tds = tr.children();
+                    String date = tds.get(0).text();
+                    String name = tds.get(1).text();
+                    Double price = Double.valueOf(tds.get(2).getElementsByClass("c-orange").eq(0).text());
+                    String seller = tds.get(3).text();
+                    String uri = tds.get(4).getElementsByTag("a").eq(0).attr("href");
+                    //解析mark1
+                    String priceTrend = uri.substring(uri.indexOf("mark1=") + 6, uri.indexOf("&"));
+                    Product product = new Product();
+                    product.setDate(DateUtil.parse(date));
+                    product.setName(name);
+                    product.setPrice(price);
+                    //由于信息同步过程较慢，暂时放弃价格年走势的提取，只记录走势key。
+                    product.setPriceTrend(priceTrend);
+                    product.setSeller(seller);
+                    //save(product);//由于直接存储数据库效率慢，暂时尝试缓存
+                    products.add(product);
+                }
             }
         }
+        long end = System.currentTimeMillis();
+        System.out.println("数据抓取+存储耗时:" + (end - start));
+        return products;
+    }
+
+    @Override
+    public Product save(Product product) {
+        product.setCreateDate(new Date());
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product getProduct(String name, String date) {
         return null;
     }
 

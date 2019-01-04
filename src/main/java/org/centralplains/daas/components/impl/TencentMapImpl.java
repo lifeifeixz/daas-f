@@ -47,18 +47,10 @@ import java.net.URLEncoder;
 @Service
 public class TencentMapImpl implements MapApi {
 
-    @Autowired
-    private LocationRepository locationRepository;
-
-    @Autowired
-    private LocationInvalidRepository locationInvalidRepository;
 
     @Override
     public Location geoCoder(String address) {
-        Location location = findByLoc(address);
-        if (location != null) {
-            return location;
-        }
+        Location location = null;
         String url = null;
         try {
             url = "https://apis.map.qq.com/ws/geocoder/v1/?address=" + URLEncoder.encode(address, "UTF-8") + "&key=XDEBZ-GU7KX-YFD4V-TGTPY-MIRLJ-TYBO5";
@@ -73,16 +65,9 @@ public class TencentMapImpl implements MapApi {
             JSONObject loc = var2.getJSONObject("location");
             location = new Location(loc.getDouble("lng"), loc.getDouble("lat"), address);
             location.setCity(var2.getJSONObject("address_components").getString("district"));
-            return locationRepository.save(location);
+            return location;
         } else {
             System.out.println("[" + address + "]查询不到数据;具体原因可能: " + jsonObject.getString("message"));
-            //将查询不到的数据存储到location_invalid表中
-            LocationInvalid invalid = locationInvalidRepository.findByKeywords(address);
-            if (invalid == null) {
-                invalid = new LocationInvalid(0.0, 0.0, address);
-                invalid.setCity(null);
-                locationInvalidRepository.save(invalid);
-            }
         }
         return null;
     }
@@ -90,9 +75,5 @@ public class TencentMapImpl implements MapApi {
     public static void main(String[] args) {
         TencentMapImpl t = new TencentMapImpl();
         t.geoCoder("");
-    }
-
-    public Location findByLoc(String address) {
-        return locationRepository.findByKeywords(address);
     }
 }

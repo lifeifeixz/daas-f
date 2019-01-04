@@ -3,6 +3,7 @@
 
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 		<style type="text/css">
 			.variety {
 				width: 200px;
@@ -10,6 +11,25 @@
 				position: fixed;
 				top: 0px;
 				right: 100px;
+			}
+			.datalist{
+				width: auto;
+				max-height: 300px;
+				overflow-y: scroll;
+				position: fixed;
+				top: 0px;
+				left: 0px;
+				font-size: 12px;
+				color:#000;
+				background:#f3f3f3;
+				
+			}
+			.val{
+				color: red;
+				font-weight: bold;
+			}
+			td{
+				cursor: pointer;
 			}
 		</style>
 	</head>
@@ -31,10 +51,16 @@
 			</select>
 			<button onclick="send()">确定</button>
 		</div>
-		<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
-		<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
-		<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
-		<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+		<!--列表-->
+		<div class="datalist" id="datalist">
+			<table class="area-p" id="area-p">
+				
+			</table>
+		</div>
+		<script type="text/javascript" src="js/echarts/echarts.min.js"></script>
+		<script type="text/javascript" src="js/echarts/echarts-gl.min.js"></script>
+		<script type="text/javascript" src="js/echarts/ecStat.min.js"></script>
+		<script type="text/javascript" src="js/echarts/dataTool.min.js"></script>
 		<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
 		<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
 		<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
@@ -157,6 +183,7 @@
 						myChart.hideLoading();
 						myChart.clear();
 						data = json.data;
+						initList(data);//初始化列表数据
 						geoCoordMap = json.geoCoordMap;
 						option.series[0].data=convertData(data);
 						option.series[1].data=convertData(data.sort(function(a, b) {
@@ -165,6 +192,27 @@
 						myChart.setOption(option);
 					}
 				});
+			}
+			function initList(data){
+				$("#area-p").empty();
+				if(data){
+					data=data.sort(function(a, b) {return b.value - a.value;})
+				}else{
+					return;
+				}
+				var str = "";
+				for(var i=0;i<data.length;i++){
+					var color="#666";
+					if(i<=2){
+						color="#BD7926";
+					}else if(i<=6){
+						color="#666";
+					}
+					var name = data[i].name;
+					name=name.substring(0,10);
+					str+="<tr><td align=\"right\" style=\"color:"+color+";\" class=\"val\">￥"+(data[i].value/10)+"/KG</td><td align=\"left\"><a href='http://www.baidu.com' target='_blank'><span title='"+data[i].name+"'>"+name+"...</span></a></td></tr>";
+				}
+				$("#area-p").append(str);
 			}
 			window.onload=function(){
 				send();

@@ -25,6 +25,7 @@
 package org.centralplains.daas.beans;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -36,7 +37,10 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "product")
-public class Product {
+public class Product implements Serializable{
+
+
+    private static final long serialVersionUID = 5646023152876679776L;
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private int id;

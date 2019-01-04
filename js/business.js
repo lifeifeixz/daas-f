@@ -159,10 +159,12 @@ var convertData = function(data) {
 		//取出地址对应的经纬度
 		var geoCoord = geoCoordMap[data[i].name];
 		if(geoCoord) {
-			res.push({
+			var var1 = {
 				name: data[i].name,
 				value: geoCoord.concat(data[i].value)
-			});
+			};
+			var1.name=var1.name+"(￥: "+(var1.value[2]/10)+"元/公斤)";
+			res.push(var1);
 		}
 	}
 	return res;
