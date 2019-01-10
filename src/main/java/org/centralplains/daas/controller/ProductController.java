@@ -24,6 +24,7 @@
  */
 package org.centralplains.daas.controller;
 
+import org.apache.http.client.utils.DateUtils;
 import org.centralplains.daas.beans.Location;
 import org.centralplains.daas.beans.Product;
 import org.centralplains.daas.beans.Variety;
@@ -43,6 +44,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -131,6 +135,19 @@ public class ProductController {
     public List<Product> priceTrend(@RequestParam() String seller,
                                     @RequestParam() String name,
                                     @RequestParam(required = false) Integer count) {
-        return productService.getSellerPriceTrend(seller, name, count);
+        return conventProduct(productService.getSellerPriceTrend(seller, name, count));
+    }
+
+    protected List<Product> conventProduct(List<Product> products) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (Product product : products) {
+            String date = DateUtils.formatDate(product.getDate(), "yyyy-MM-dd");
+            try {
+                product.setDate(sdf.parse(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return products;
     }
 }
