@@ -24,9 +24,11 @@
  */
 package org.centralplains.daas.service.impl;
 
+import org.apache.http.client.utils.DateUtils;
 import org.assertj.core.util.DateUtil;
 import org.centralplains.daas.beans.Product;
 import org.centralplains.daas.beans.Variety;
+import org.centralplains.daas.beans.dto.SellerPriceTrendDto;
 import org.centralplains.daas.beans.req.ProductPageReq;
 import org.centralplains.daas.beans.Location;
 import org.centralplains.daas.beans.req.RegoinPriceReq;
@@ -95,6 +97,11 @@ public class ProductServiceImpl implements ProductService {
         params.put("mark1", mark);
         params.put("craft_index", "13214");
         return HttpUtil.post(uri, params, "GBK");
+    }
+
+    @Override
+    public Double[] reqPriceTrend(String mark, String craftIndex, String year) {
+        return new Double[0];
     }
 
     @Override
@@ -168,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
                 Map<String, Object> item = new HashMap<>(1);
                 item.put("name", product.getSeller());
                 item.put("value", product.getPrice() * 10);
-                item.put("make",product.getPriceTrend());
+                item.put("make", product.getPriceTrend());
                 Double[] position = new Double[2];
                 Location loc = locationService.getByKeywords(product.getSeller());
                 if (loc == null) {
@@ -232,9 +239,9 @@ public class ProductServiceImpl implements ProductService {
                 String name = tds.get(1).text();
                 Double price = Double.valueOf(tds.get(2).getElementsByClass("c-orange").eq(0).text());
                 String seller = tds.get(3).text();
-                String uri = tds.get(4).getElementsByTag("a").eq(0).attr("href");
-                //解析mark1
-                String priceTrend = uri.substring(uri.indexOf("mark1=") + 6, uri.indexOf("&"));
+                String uri = tds.get(4).getElementsByTag("a").eq(0).attr("abs:href");
+                //解析年度走势url
+                String priceTrend = uri;
                 Product product = new Product();
                 product.setDate(DateUtil.parse(date));
                 product.setName(name);
@@ -253,13 +260,23 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product save(Product product) {
-        product.setCreateDate(new Date());
+        product.setCreateDate(product.getDate() == null ? new Date() : product.getDate());
         return productRepository.save(product);
     }
 
     @Override
     public Product getProduct(String name, String date) {
         return null;
+    }
+
+    @Override
+    public List<Product> findProducts(String name, String date) {
+        return productRepository.findByNameAndDate(name, DateUtils.parseDate(date));
+    }
+
+    @Override
+    public List<Product> getSellerPriceTrend(String seller, String name, Integer count) {
+        return productMapper.findSellerPriceTrend(new SellerPriceTrendDto(seller, name, count == null ? 30 : count));
     }
 
     public static void main(String[] args) {

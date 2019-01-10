@@ -27,6 +27,7 @@ package org.centralplains.daas.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.centralplains.daas.beans.Product;
+import org.centralplains.daas.beans.dto.SellerPriceTrendDto;
 
 import java.util.List;
 
@@ -42,4 +43,6 @@ public interface ProductMapper {
     List<Product> findSellerAll(String date);
 
     List<Product> findSellerPrice(@Param("name")String name, @Param("date")String date);
+
+    List<Product> findSellerPriceTrend(SellerPriceTrendDto dto);
 }

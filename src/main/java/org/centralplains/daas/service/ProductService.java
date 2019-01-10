@@ -24,6 +24,16 @@ public interface ProductService {
     String reqPriceTrend(String mark);
 
     /**
+     * 获取某个地区年份数据走势
+     *
+     * @param mark
+     * @param craftIndex
+     * @param year       年份；例：2018
+     * @return
+     */
+    Double[] reqPriceTrend(String mark, String craftIndex, String year);
+
+    /**
      * 获取所有产品信息
      *
      * @param req
@@ -70,4 +80,16 @@ public interface ProductService {
      * @return
      */
     Product getProduct(String name, String date);
+
+    List<Product> findProducts(String name, String date);
+
+    /**
+     * 获取地区价格趋势
+     *
+     * @param seller
+     * @param name
+     * @param count
+     * @return
+     */
+    List<Product> getSellerPriceTrend(String seller, String name, Integer count);
 }

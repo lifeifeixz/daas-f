@@ -95,7 +95,7 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/getTrendByMark")
-    public Object getTrendByCode(@RequestParam String make){
+    public Object getTrendByCode(@RequestParam String make) {
 
         return productService.reqPriceTrend(make);
     }
@@ -106,10 +106,10 @@ public class ProductController {
         List<Location> locations = locationRepository.findAll();
         int i = 0;
         for (Location location : locations) {
-           if(location.getLat()!=null&&location.getLng()!=null){
-               cacheService.put(LocationCacheImpl.LOCATION_KEY, location.getKeywords(), location);
-               System.out.println(i++);
-           }
+            if (location.getLat() != null && location.getLng() != null) {
+                cacheService.put(LocationCacheImpl.LOCATION_KEY, location.getKeywords(), location);
+                System.out.println(i++);
+            }
         }
         return "缓存完成";
     }
@@ -117,5 +117,20 @@ public class ProductController {
     @RequestMapping(value = "/variety/large")
     public List<Variety> large(@RequestParam int parentId) {
         return (List<Variety>) cacheService.get("variety", parentId);
+    }
+
+    /**
+     * 获取某个区域价格走势
+     *
+     * @param seller
+     * @param name
+     * @param count
+     * @return
+     */
+    @RequestMapping(value = "/seller/priceTrend")
+    public List<Product> priceTrend(@RequestParam() String seller,
+                                    @RequestParam() String name,
+                                    @RequestParam(required = false) Integer count) {
+        return productService.getSellerPriceTrend(seller, name, count);
     }
 }
