@@ -22,6 +22,30 @@ spring:
         max-active: 1000
         max-wait: -1
     timeout: 30000
+kafka:
+  consumer:
+    zookeeper:
+      connect: 114.116.24.215:2181
+      servers: 10.93.21.21:9092
+      enable:
+        auto:
+          commit: true
+    enable-auto-commit: true
+    session:
+      timeout: 6000
+    auto:
+      commit:
+        interval: 100
+    auto-offset-reset: latest
+    topic: test
+    group-id: test
+    concurrency: 10
+  producer:
+    servers: 114.116.24.215:9092
+    retries: 0
+    batch-size: 4096
+    linger: 1
+    buffer-memory: 40960
 mybatis:
   type-aliases-package: org.centralplains.daas.beans
   mapper-locations: classpath:mapper/*.xml
