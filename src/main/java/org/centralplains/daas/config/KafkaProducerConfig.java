@@ -24,8 +24,9 @@
  */
 package org.centralplains.daas.config;
 
-import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,7 +59,7 @@ public class KafkaProducerConfig {
     @Value("${kafka.producer.batch-size}")
     private int batchSize;
 
-    @Value("${kafka.producer.linger")
+    @Value("${kafka.producer.linger}")
     private int linger;
 
     @Value("${kafka.producer.buffer-memory}")
@@ -77,7 +78,7 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.LINGER_MS_CONFIG, linger);
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return props;
     }
 

@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author flysLi
@@ -50,7 +52,9 @@ public class TestController {
     public Object sendKafka(HttpServletRequest request, HttpServletResponse response) {
         String message = request.getParameter("message");
         System.out.println("消息:" + message);
-        kafkaTemplate.send("test", "key", message);
+        Map<String,Object> objectMap = new HashMap<>();
+        objectMap.put("name","lifeifei");
+        kafkaTemplate.send("test", "key", objectMap);
         return "发送成功";
     }
 }
