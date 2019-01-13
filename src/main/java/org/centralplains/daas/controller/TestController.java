@@ -51,10 +51,20 @@ public class TestController {
     @RequestMapping(value = "/kafka/send")
     public Object sendKafka(HttpServletRequest request, HttpServletResponse response) {
         String message = request.getParameter("message");
-        System.out.println("消息:" + message);
-        Map<String,Object> objectMap = new HashMap<>();
-        objectMap.put("name","lifeifei");
-        kafkaTemplate.send("test", "key", objectMap);
+        String count = request.getParameter("count");
+        if (count != null && count.length() > 0) {
+            int len = Integer.parseInt(count);
+            for (int i = 0; i < len; i++) {
+                Map<String, Object> objectMap = new HashMap<>();
+                objectMap.put("name", message + i);
+                kafkaTemplate.send("test", "key", objectMap);
+            }
+        } else {
+            Map<String, Object> objectMap = new HashMap<>();
+            objectMap.put("name", message);
+            kafkaTemplate.send("test", "key", objectMap);
+        }
+
         return "发送成功";
     }
 }
