@@ -24,7 +24,9 @@
  */
 package org.centralplains.daas.controller;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,5 +68,16 @@ public class TestController {
         }
 
         return "发送成功";
+    }
+
+    @RequestMapping(value = "/kafka/consume")
+    public Object consumeKafka(HttpServletRequest request, HttpServletResponse response) {
+        String message = request.getParameter("message");
+        return "发送成功";
+    }
+
+    @KafkaListener(topics = "test")
+    public void receive(ConsumerRecord<?, ?> consumerRecord) {
+        System.out.println("topic是:" + consumerRecord.topic() + "\tkey:" + consumerRecord.key() + "\tvalue:" + consumerRecord.value());
     }
 }
