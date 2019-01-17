@@ -76,7 +76,7 @@ public class TestController {
         return "发送成功";
     }
 
-    @KafkaListener(topics = "test")
+//    @KafkaListener(topics = "test")
     public void receive(ConsumerRecord<?, ?> consumerRecord) {
         System.out.println("topic是:" + consumerRecord.topic() + "\tkey:" + consumerRecord.key() + "\tvalue:" + consumerRecord.value());
     }
