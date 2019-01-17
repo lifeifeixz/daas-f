@@ -24,6 +24,7 @@
  */
 package org.centralplains.daas.controller;
 
+import io.swagger.annotations.Api;
 import org.centralplains.daas.beans.Product;
 import org.centralplains.daas.common.Keys;
 import org.centralplains.daas.service.CacheService;
@@ -47,6 +48,7 @@ import java.util.Set;
  * @Version 1.0
  */
 @RestController
+@Api(description = "数据同步")
 @Description(value = "数据同步控制器")
 @RequestMapping(value = "/data/sync")
 public class DataSyncController {
@@ -79,6 +81,7 @@ public class DataSyncController {
             if (products == null || products.size() == 0) {
                 List<Product> products1 = (List<Product>) cacheService.get(Keys.Cache_Product, key);
                 for (Product p : products1) {
+                    //查看数据是否已经存在
                     productService.save(p);
                 }
             }

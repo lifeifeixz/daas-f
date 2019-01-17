@@ -24,6 +24,7 @@
  */
 package org.centralplains.daas.controller;
 
+import io.swagger.annotations.Api;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -43,6 +44,7 @@ import java.util.Map;
  * @Date 2019/1/11 11:45
  * @Version 1.0
  */
+@Api(description = "新功能集成测试接口")
 @RestController
 @RequestMapping(value = "/test")
 public class TestController {
